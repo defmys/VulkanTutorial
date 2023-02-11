@@ -14,4 +14,4 @@ find_library(glfw glfw REQIURED)
 find_library(vulkan vulkan REQUIRED)
 
 add_subdirectory( VulkanTesting )
-add_subdirectory( BaseCode )
+add_subdirectory( Triangle )
