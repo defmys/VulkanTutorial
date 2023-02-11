@@ -8,12 +8,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
     -I/opt/homebrew/include \
     ")
 
-project(vk_tutorial)
-
-set( target vk_tutorial )
-
-add_executable(${target} main.cpp)
-
 find_library(glfw glfw REQIURED)
 find_library(vulkan vulkan REQUIRED)
-target_link_libraries(${target} ${glfw} ${vulkan})
+
+add_subdirectory( VulkanTesting )
