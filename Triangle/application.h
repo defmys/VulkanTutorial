@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
+#include <vector>
 
 
 class HelloTriangleApplication
@@ -19,6 +20,13 @@ private:
     void cleanUp() ;
 
     void createInstance();
+    bool checkValidationLayerSupport();
+    std::vector<const char*> getRequiredExtensions();
+
+    void setupDebugMessenger();
+    VkResult CreateDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator);
+    // static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+    void DestroyDebugUtilsMessengerEXT(const VkAllocationCallbacks* pAllocator);
     
 private:
     const uint32_t WIDTH = 800;
@@ -28,4 +36,5 @@ private:
     bool m_initialized = false;
 
     VkInstance m_instance;
+    VkDebugUtilsMessengerEXT m_debugMessenger;
 };
