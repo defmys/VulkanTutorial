@@ -17,6 +17,8 @@ private:
     void initVulkan() ;
     void mainLoop();
     void cleanUp() ;
+
+    void createInstance();
     
 private:
     const uint32_t WIDTH = 800;
@@ -24,4 +26,6 @@ private:
 
     GLFWwindow* m_pWindow; 
     bool m_initialized = false;
+
+    VkInstance m_instance;
 };
