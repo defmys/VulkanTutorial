@@ -99,14 +99,19 @@ void HelloTriangleApplication::createInstance()
     createInfo.enabledExtensionCount = requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+
     if (enableValidationLayers)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
         createInfo.ppEnabledLayerNames = VALIDATION_LAYERS.data();
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = &debugCreateInfo;
     }
     else
     {
         createInfo.enabledLayerCount = 0;
+        createInfo.pNext = nullptr;
     }
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &m_instance);
@@ -160,14 +165,10 @@ std::vector<const char *> HelloTriangleApplication::getRequiredExtensions()
     return requiredExtensions;
 }
 
-void HelloTriangleApplication::setupDebugMessenger()
+void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo)
 {
-    if (!enableValidationLayers)
-    {
-        return;
-    }
-
-    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+    createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT 
         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
@@ -177,6 +178,17 @@ void HelloTriangleApplication::setupDebugMessenger()
         | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     createInfo.pfnUserCallback = debugCallback;
     createInfo.pUserData = nullptr;
+}
+
+void HelloTriangleApplication::setupDebugMessenger()
+{
+    if (!enableValidationLayers)
+    {
+        return;
+    }
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
 
     if (CreateDebugUtilsMessengerEXT(&createInfo, nullptr) != VK_SUCCESS)
     {
