@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <cstring>
+#include <map>
 
 
 #ifdef NDEBUG
@@ -47,6 +48,7 @@ void HelloTriangleApplication::initVulkan()
 
     createInstance();
     setupDebugMessenger();
+    pickPhysicalDevice();
 
     m_initialized = true;
 }
@@ -167,7 +169,7 @@ std::vector<const char *> HelloTriangleApplication::getRequiredExtensions()
 
 void HelloTriangleApplication::pickPhysicalDevice()
 {
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    [[maybe_unused]] VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
     if (deviceCount == 0)
@@ -178,21 +180,25 @@ void HelloTriangleApplication::pickPhysicalDevice()
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 
+    std::multimap<int, VkPhysicalDevice> candidates;
+
     for (const auto& device: devices)
     {
-        if (isDeviceSuitable(device))
-        {
-            physicalDevice = device;
-            break;
-        }
+        int score = rateDeviceSuitability(device);
+        candidates.insert(std::make_pair(score, device));
     }
-    if (physicalDevice == VK_NULL_HANDLE)
+
+    if (candidates.rbegin()->first > 0)
+    {
+        physicalDevice = candidates.rbegin()->second;
+    }
+    else
     {
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 }
 
-bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device)
+int HelloTriangleApplication::rateDeviceSuitability(VkPhysicalDevice device)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -200,7 +206,20 @@ bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device)
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-    return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+    int score = 0;
+    if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    {
+        score += 1000;
+    }
+
+    score += deviceProperties.limits.maxImageDimension2D;
+
+    // if (!deviceFeatures.geometryShader)
+    // {
+    //     return 0;
+    // }
+
+    return score;
 }
 
 void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo)

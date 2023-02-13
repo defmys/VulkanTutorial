@@ -25,7 +25,7 @@ private:
 
     // physical device
     void pickPhysicalDevice();
-    bool isDeviceSuitable(VkPhysicalDevice device);
+    int rateDeviceSuitability(VkPhysicalDevice device);
 
     // validation layers
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
