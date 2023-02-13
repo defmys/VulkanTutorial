@@ -23,6 +23,10 @@ private:
     bool checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();
 
+    // physical device
+    void pickPhysicalDevice();
+    bool isDeviceSuitable(VkPhysicalDevice device);
+
     // validation layers
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void setupDebugMessenger();
