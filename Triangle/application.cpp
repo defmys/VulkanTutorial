@@ -161,6 +161,7 @@ std::vector<const char *> HelloTriangleApplication::getRequiredExtensions()
 
     std::vector<const char*> requiredExtensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
     requiredExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
     if (enableValidationLayers)
     {
@@ -324,13 +325,17 @@ void HelloTriangleApplication::createLogicalDevice()
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
     VkPhysicalDeviceFeatures deviceFeatures{};
+    std::vector<const char*> extensions{
+        "VK_KHR_portability_subset"
+    };
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pQueueCreateInfos = &queueCreateInfo;
     createInfo.queueCreateInfoCount = 1;
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = extensions.size();
+    createInfo.ppEnabledExtensionNames = extensions.data();
     if (enableValidationLayers)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
