@@ -7,6 +7,18 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <optional>
+
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() 
+    {
+        return graphicsFamily.has_value();
+    };
+};
 
 
 class HelloTriangleApplication
@@ -32,6 +44,13 @@ private:
     void setupDebugMessenger();
     VkResult CreateDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator);
     void DestroyDebugUtilsMessengerEXT(const VkAllocationCallbacks* pAllocator);
+
+    // queues
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    bool isDeviceSuitable(VkPhysicalDevice device);
+
+    // logical device
+    void createLogicalDevice();
     
 private:
     const uint32_t WIDTH = 800;
@@ -42,4 +61,9 @@ private:
 
     VkInstance m_instance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
+
+    VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+    VkDevice m_device;
+    VkQueue m_graphicsQueue;
 };
