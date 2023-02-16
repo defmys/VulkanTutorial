@@ -41,6 +41,8 @@ private:
     // physical device
     void pickPhysicalDevice();
     int rateDeviceSuitability(VkPhysicalDevice device);
+    bool isDeviceSuitable(VkPhysicalDevice device);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
     // validation layers
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -50,7 +52,6 @@ private:
 
     // queues
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    bool isDeviceSuitable(VkPhysicalDevice device);
 
     // logical device
     void createLogicalDevice();
