@@ -16,8 +16,13 @@
     const bool enableValidationLayers = true;
 #endif
 
-const std::vector<const char*> VALIDATION_LAYERS = {
+static const std::vector<const char*> VALIDATION_LAYERS = {
     "VK_LAYER_KHRONOS_validation"
+};
+
+static const std::vector<const char*> DEVICE_EXTENSIONS = { 
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
+    "VK_KHR_portability_subset"
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -108,11 +113,6 @@ void HelloTriangleApplication::createInstance()
 
     std::vector<const char*> requiredExtensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = requiredExtensions.size();
-    std::cout << "required extensions: " << std::endl;
-    for (const char* extension: requiredExtensions)
-    {
-        std::cout << extension << std::endl;
-    }
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
@@ -340,8 +340,7 @@ bool HelloTriangleApplication::checkDeviceExtensionSupport(VkPhysicalDevice devi
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    static const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<std::string> requiredExtensions(DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end());
     for (const VkExtensionProperties& extension: availableExtensions)
     {
         requiredExtensions.erase(extension.extensionName);
@@ -372,17 +371,14 @@ void HelloTriangleApplication::createLogicalDevice()
     }
 
     VkPhysicalDeviceFeatures deviceFeatures{};
-    std::vector<const char*> extensions{
-        "VK_KHR_portability_subset"
-    };
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = extensions.size();
-    createInfo.ppEnabledExtensionNames = extensions.data();
+    createInfo.enabledExtensionCount = DEVICE_EXTENSIONS.size();
+    createInfo.ppEnabledExtensionNames = DEVICE_EXTENSIONS.data();
     if (enableValidationLayers)
     {
         createInfo.enabledLayerCount = static_cast<uint32_t>(VALIDATION_LAYERS.size());
