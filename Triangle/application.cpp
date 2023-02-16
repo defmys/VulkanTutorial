@@ -1,5 +1,8 @@
 #include "application.h"
 
+#define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3native.h>
+
 #include <stdexcept>
 #include <vector>
 #include <cstring>
@@ -48,6 +51,7 @@ void HelloTriangleApplication::initVulkan()
 
     createInstance();
     setupDebugMessenger();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
 
@@ -65,6 +69,7 @@ void HelloTriangleApplication::mainLoop()
 void HelloTriangleApplication::cleanUp()
 {
     vkDestroyDevice(m_device, nullptr);
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 
     if (enableValidationLayers)
     {
@@ -102,6 +107,11 @@ void HelloTriangleApplication::createInstance()
 
     std::vector<const char*> requiredExtensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = requiredExtensions.size();
+    std::cout << "required extensions: " << std::endl;
+    for (const char* extension: requiredExtensions)
+    {
+        std::cout << extension << std::endl;
+    }
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
@@ -352,4 +362,16 @@ void HelloTriangleApplication::createLogicalDevice()
     }
 
     vkGetDeviceQueue(m_device, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
+}
+
+void HelloTriangleApplication::createSurface()
+{
+    VkMacOSSurfaceCreateInfoMVK createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+    createInfo.pView = glfwGetCocoaWindow(m_pWindow);
+
+    if (glfwCreateWindowSurface(m_instance, m_pWindow, nullptr, &m_surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create window surface!");
+    }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#define VK_USE_PLATFORM_MACOS_MVK
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -51,6 +53,9 @@ private:
 
     // logical device
     void createLogicalDevice();
+
+    // surface
+    void createSurface();
     
 private:
     const uint32_t WIDTH = 800;
@@ -66,4 +71,6 @@ private:
 
     VkDevice m_device;
     VkQueue m_graphicsQueue;
+
+    VkSurfaceKHR m_surface;
 };
