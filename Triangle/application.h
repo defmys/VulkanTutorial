@@ -69,6 +69,9 @@ private:
 
     // swap chain
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     
 private:
     const uint32_t WIDTH = 800;
