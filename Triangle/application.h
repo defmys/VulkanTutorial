@@ -72,6 +72,7 @@ private:
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    void createSwapChain();
     
 private:
     const uint32_t WIDTH = 800;
@@ -90,4 +91,6 @@ private:
     VkQueue m_presentQueue;
 
     VkSurfaceKHR m_surface;
+
+    VkSwapchainKHR m_swapChain;
 };
