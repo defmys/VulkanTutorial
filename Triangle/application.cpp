@@ -545,4 +545,11 @@ void HelloTriangleApplication::createSwapChain()
     {
         throw std::runtime_error("failed to create swapchain!");
     }
+
+    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
+    m_swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+
+    m_swapChainImageFormat = surfaceFromat.format;
+    m_swapChainExtent = extent;
 }
