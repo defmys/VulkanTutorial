@@ -24,6 +24,14 @@ struct QueueFamilyIndices
 };
 
 
+struct SwapChainSupportDetails 
+{
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+};
+
+
 class HelloTriangleApplication
 {
 public:
@@ -58,6 +66,9 @@ private:
 
     // surface
     void createSurface();
+
+    // swap chain
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     
 private:
     const uint32_t WIDTH = 800;
