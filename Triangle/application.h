@@ -35,6 +35,7 @@ struct SwapChainSupportDetails
 class HelloTriangleApplication
 {
 public:
+    void setExePath(const std::string& exePath);
     void run();
 
 private:
@@ -76,8 +77,12 @@ private:
 
     // image view
     void createImageViews();
+
+    void createGraphicsPipline();
     
 private:
+    std::string m_exePath;
+
     const uint32_t WIDTH = 800;
     const uint32_t HEIGHT = 600;
 

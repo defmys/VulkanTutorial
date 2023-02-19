@@ -8,6 +8,7 @@
 #include <cstring>
 #include <map>
 #include <set>
+#include <fstream>
 
 
 #ifdef NDEBUG
@@ -33,6 +34,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 {
     std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
     return VK_FALSE;
+}
+
+void HelloTriangleApplication::setExePath(const std::string& exePath)
+{
+    m_exePath = exePath;
 }
 
 void HelloTriangleApplication::run()
@@ -62,6 +68,7 @@ void HelloTriangleApplication::initVulkan()
     createLogicalDevice();
     createSwapChain();
     createImageViews();
+    createGraphicsPipline();
 
     m_initialized = true;
 }
@@ -586,4 +593,31 @@ void HelloTriangleApplication::createImageViews()
             throw std::runtime_error("failed to create image views!");
         }
     }
+}
+
+static std::vector<char> readFile(const std::string& filename)
+{
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("failed to open file!");
+    }
+
+    size_t fileSize = static_cast<size_t>(file.tellg());
+    std::vector<char> buffer(fileSize);
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+    return buffer;
+}
+
+void HelloTriangleApplication::createGraphicsPipline()
+{
+    std::string vertFilePath = m_exePath;
+    vertFilePath.append("/vert.spv");
+    auto vertShaderCode = readFile(vertFilePath.c_str());
+
+    std::string fragFilePath = m_exePath;
+    fragFilePath.append("/vert.spv");
+    auto fragShaderCode = readFile(fragFilePath.c_str());
 }

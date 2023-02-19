@@ -5,9 +5,14 @@
 #include "application.h"
 
 
-int main()
+int main(int argc, char* argv[])
 {
     HelloTriangleApplication app;
+
+    std::string argvStr(argv[0]);
+    std::string baseDir = argvStr.substr(0, argvStr.find_last_of("/"));
+    app.setExePath(baseDir);
+
     try
     {
         app.run();

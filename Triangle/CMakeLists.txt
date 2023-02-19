@@ -9,5 +9,6 @@ add_dependencies(${target} CompileShaders)
 
 add_custom_target(
     CompileShaders
-    COMMAND ${CMAKE_CURRENT_LIST_DIR}/compile_shaders.sh
+    COMMAND glslc ${CMAKE_CURRENT_LIST_DIR}/shaders/shader.vert -o ${CMAKE_CURRENT_BINARY_DIR}/vert.spv
+    COMMAND glslc ${CMAKE_CURRENT_LIST_DIR}/shaders/shader.frag -o ${CMAKE_CURRENT_BINARY_DIR}/frag.spv
 )
