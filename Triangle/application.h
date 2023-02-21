@@ -79,6 +79,9 @@ private:
     void createImageViews();
 
     void createGraphicsPipline();
+
+    // shader
+    VkShaderModule createShaderModule(const std::vector<char>& code);
     
 private:
     std::string m_exePath;
