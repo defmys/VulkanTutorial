@@ -91,6 +91,7 @@ private:
 
     // command buffer
     void createCommandPool();
+    void createCommandBuffer();
     
 private:
     std::string m_exePath;
@@ -124,4 +125,5 @@ private:
 
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
     VkCommandPool m_commandPool;
+    VkCommandBuffer m_commandBuffer;
 };
