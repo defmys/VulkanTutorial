@@ -85,6 +85,9 @@ private:
 
     // render pass
     void createRenderPass();
+
+    // framebuffer
+    void createFramebuffers();
     
 private:
     std::string m_exePath;
@@ -115,4 +118,6 @@ private:
     VkRenderPass m_renderPass;
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
+
+    std::vector<VkFramebuffer> m_swapChainFramebuffers;
 };
