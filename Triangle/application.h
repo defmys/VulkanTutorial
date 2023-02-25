@@ -88,6 +88,9 @@ private:
 
     // framebuffer
     void createFramebuffers();
+
+    // command buffer
+    void createCommandPool();
     
 private:
     std::string m_exePath;
@@ -120,4 +123,5 @@ private:
     VkPipeline m_graphicsPipeline;
 
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
+    VkCommandPool m_commandPool;
 };
