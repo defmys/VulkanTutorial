@@ -82,6 +82,9 @@ private:
 
     // shader
     VkShaderModule createShaderModule(const std::vector<char>& code);
+
+    // render pass
+    void createRenderPass();
     
 private:
     std::string m_exePath;
@@ -109,5 +112,6 @@ private:
     VkExtent2D m_swapChainExtent;
     std::vector<VkImageView> m_swapChainImageViews;
 
+    VkRenderPass m_renderPass;
     VkPipelineLayout m_pipelineLayout;
 };
