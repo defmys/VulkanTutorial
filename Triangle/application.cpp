@@ -83,6 +83,7 @@ void HelloTriangleApplication::mainLoop()
 
 void HelloTriangleApplication::cleanUp()
 {
+    vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
     for (auto imageView: m_swapChainImageViews)
     {
         vkDestroyImageView(m_device, imageView, nullptr);
@@ -714,6 +715,26 @@ void HelloTriangleApplication::createGraphicsPipline()
     colorBlending.blendConstants[1] = 0.f;
     colorBlending.blendConstants[2] = 0.f;
     colorBlending.blendConstants[3] = 0.f;
+
+    std::vector<VkDynamicState> dynamicStates = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_LINE_WIDTH
+    };
+    VkPipelineDynamicStateCreateInfo dynamicState{};
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState.pDynamicStates = dynamicStates.data();
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    if(vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
 }
 
 VkShaderModule HelloTriangleApplication::createShaderModule(const std::vector<char> &code)
