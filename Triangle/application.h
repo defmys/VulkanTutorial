@@ -41,6 +41,7 @@ public:
 private:
     void initVulkan() ;
     void mainLoop();
+    void drawFrame();
     void cleanUp() ;
 
     void createInstance();
@@ -93,6 +94,9 @@ private:
     void createCommandPool();
     void createCommandBuffer();
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    // sychronization
+    void createSyncObjects();
     
 private:
     std::string m_exePath;
@@ -127,4 +131,8 @@ private:
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
     VkCommandPool m_commandPool;
     VkCommandBuffer m_commandBuffer;
+
+    VkSemaphore m_imageAvailableSemaphore;
+    VkSemaphore m_renderFinishedSemaphore;
+    VkFence m_inflightFence;
 };
