@@ -36,6 +36,7 @@ class HelloTriangleApplication
 {
 public:
     void setExePath(const std::string& exePath);
+    void setFramebufferResized(bool resized) { m_framebufferResized = resized; }
     void run();
 
 private:
@@ -97,6 +98,9 @@ private:
 
     // sychronization
     void createSyncObjects();
+
+    void recreateSwapChain();
+    void cleanupSwapChain();
     
 private:
     std::string m_exePath;
@@ -137,4 +141,5 @@ private:
     std::vector<VkFence> m_inflightFences;
 
     uint32_t m_currentFrame = 0;
+    bool m_framebufferResized = false;
 };
