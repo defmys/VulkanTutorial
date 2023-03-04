@@ -99,8 +99,13 @@ private:
     // sychronization
     void createSyncObjects();
 
+    // swap chain recreation
     void recreateSwapChain();
     void cleanupSwapChain();
+
+    // vertex buffer
+    void createVertexBuffer();
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     
 private:
     std::string m_exePath;
@@ -142,4 +147,7 @@ private:
 
     uint32_t m_currentFrame = 0;
     bool m_framebufferResized = false;
+
+    VkBuffer m_vertexBuffer;
+    VkDeviceMemory m_vertexBufferMemory;
 };
