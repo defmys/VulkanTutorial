@@ -119,8 +119,10 @@ private:
     void createUniformBuffers();
     void updateUniformBuffer(uint32_t currentImage);
 
+    // descriptor sets
     void createDescriptorPool();
     void createDescriptorSets();
+    void updateDescriptorSets();
     
 private:
     std::string m_exePath;

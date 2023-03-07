@@ -241,6 +241,7 @@ void HelloTriangleApplication::cleanUp()
 {
     cleanupSwapChain();
 
+    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
     vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
 
     vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
@@ -1151,8 +1152,7 @@ void HelloTriangleApplication::recreateSwapChain()
     createGraphicsPipline();
     createFramebuffers();
     createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
+    updateDescriptorSets();
     createCommandBuffers();
 }
 
@@ -1177,7 +1177,6 @@ void HelloTriangleApplication::cleanupSwapChain()
         vkDestroyBuffer(m_device, m_uniformBuffers[i], nullptr);
         vkFreeMemory(m_device, m_uniformBuffersMemory[i], nullptr);
     }
-    vkDestroyDescriptorPool(m_device, m_descriptorPool, nullptr);
 }
 
 void HelloTriangleApplication::createVertexBuffer()
@@ -1415,6 +1414,11 @@ void HelloTriangleApplication::createDescriptorSets()
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
+    updateDescriptorSets();
+}
+
+void HelloTriangleApplication::updateDescriptorSets()
+{
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         VkDescriptorBufferInfo bufferInfo{};
