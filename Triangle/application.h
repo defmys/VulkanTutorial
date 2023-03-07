@@ -111,6 +111,16 @@ private:
 
     // index buffer
     void createIndexBuffer();
+
+    // descriptor layout
+    void createDescriptorSetLayout();
+
+    // uniform buffers
+    void createUniformBuffers();
+    void updateUniformBuffer(uint32_t currentImage);
+
+    void createDescriptorPool();
+    void createDescriptorSets();
     
 private:
     std::string m_exePath;
@@ -139,6 +149,7 @@ private:
     std::vector<VkImageView> m_swapChainImageViews;
 
     VkRenderPass m_renderPass;
+    VkDescriptorSetLayout m_descriptorSetLayout;
     VkPipelineLayout m_pipelineLayout;
     VkPipeline m_graphicsPipeline;
 
@@ -157,4 +168,10 @@ private:
     VkDeviceMemory m_vertexBufferMemory;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
+    
+    std::vector<VkBuffer> m_uniformBuffers;
+    std::vector<VkDeviceMemory> m_uniformBuffersMemory;
+
+    VkDescriptorPool m_descriptorPool;
+    std::vector<VkDescriptorSet> m_descriptorSets;
 };
