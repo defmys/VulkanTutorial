@@ -189,7 +189,7 @@ void HelloTriangleApplication::drawFrame()
     vkResetCommandBuffer(m_commandBuffers[m_currentFrame], 0);
     recordCommandBuffer(m_commandBuffers[m_currentFrame], imageIndex);
 
-    updateUniformBuffer(imageIndex);
+    updateUniformBuffer(m_currentFrame);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -682,7 +682,7 @@ void HelloTriangleApplication::createSwapChain()
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount; // + 1;
+    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
     {
         imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -1079,7 +1079,16 @@ void HelloTriangleApplication::recordCommandBuffer(VkCommandBuffer commandBuffer
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[imageIndex], 0, nullptr);
+    vkCmdBindDescriptorSets(
+        commandBuffer, 
+        VK_PIPELINE_BIND_POINT_GRAPHICS, 
+        m_pipelineLayout, 
+        0, 
+        1, 
+        &m_descriptorSets[m_currentFrame], 
+        0, 
+        nullptr
+    );
 
     vkCmdDrawIndexed(
         commandBuffer, 
