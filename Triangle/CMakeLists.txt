@@ -4,6 +4,7 @@ set(target Triangle)
 
 add_executable(${target} main.cpp application.cpp)
 
+target_include_directories(${target} PRIVATE ${lib_root_dir}/stb)
 target_link_libraries(${target} ${glfw} ${vulkan})
 add_dependencies(${target} CompileShaders)
 
