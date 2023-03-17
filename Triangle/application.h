@@ -135,6 +135,7 @@ private:
 
     VkImageView createImageView(VkImage image, VkFormat format);
     void createTextureImageView();
+    void createTextureSampler();
     
 private:
     std::string m_exePath;
@@ -149,6 +150,7 @@ private:
     VkDebugUtilsMessengerEXT m_debugMessenger;
 
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDeviceProperties m_deviceProperties;
 
     VkDevice m_device;
     VkQueue m_graphicsQueue;
@@ -193,4 +195,5 @@ private:
     VkDeviceMemory m_textureImageMemory;
 
     VkImageView m_textureImageView;
+    VkSampler m_textureSampler;
 };

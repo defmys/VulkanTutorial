@@ -144,6 +144,7 @@ void HelloTriangleApplication::initVulkan()
     createLogicalDevice();
     createSwapChain();
     createImageViews();
+    createTextureSampler();
     createRenderPass();
     createDescriptorSetLayout();
     createGraphicsPipline();
@@ -246,6 +247,7 @@ void HelloTriangleApplication::cleanUp()
 {
     cleanupSwapChain();
 
+    vkDestroySampler(m_device, m_textureSampler, nullptr);
     vkDestroyImageView(m_device, m_textureImageView, nullptr);
 
     vkFreeMemory(m_device, m_textureImageMemory, nullptr);
@@ -400,6 +402,8 @@ void HelloTriangleApplication::pickPhysicalDevice()
     if (candidates.rbegin()->first > 0)
     {
         m_physicalDevice = candidates.rbegin()->second;
+
+        vkGetPhysicalDeviceProperties(m_physicalDevice, &m_deviceProperties);
     }
     else
     {
@@ -411,9 +415,6 @@ int HelloTriangleApplication::rateDeviceSuitability(VkPhysicalDevice device)
 {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
-
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
     if (!isDeviceSuitable(device))
     {
@@ -427,11 +428,6 @@ int HelloTriangleApplication::rateDeviceSuitability(VkPhysicalDevice device)
     }
 
     score += deviceProperties.limits.maxImageDimension2D;
-
-    // if (!deviceFeatures.geometryShader)
-    // {
-    //     return 0;
-    // }
 
     return score;
 }
@@ -533,7 +529,15 @@ bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device)
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    // if (!deviceFeatures.geometryShader)
+    // {
+    //     return false;
+    // }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate && deviceFeatures.samplerAnisotropy;
 }
 
 bool HelloTriangleApplication::checkDeviceExtensionSupport(VkPhysicalDevice device)
@@ -574,6 +578,7 @@ void HelloTriangleApplication::createLogicalDevice()
     }
 
     VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1617,4 +1622,30 @@ VkImageView HelloTriangleApplication::createImageView(VkImage image, VkFormat fo
 void HelloTriangleApplication::createTextureImageView()
 {
     m_textureImageView = createImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+}
+
+void HelloTriangleApplication::createTextureSampler()
+{
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.maxAnisotropy = m_deviceProperties.limits.maxSamplerAnisotropy;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.f;
+    samplerInfo.minLod = 0.f;
+    samplerInfo.maxLod = 0.f;
+
+    if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create texture sampler!");
+    }
 }
