@@ -133,9 +133,15 @@ private:
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-    VkImageView createImageView(VkImage image, VkFormat format);
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createTextureImageView();
     void createTextureSampler();
+
+    // depth
+    void createDepthResources();
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    VkFormat findDepthFormat();
+    bool hasStencilComponent(VkFormat format);
     
 private:
     std::string m_exePath;
@@ -196,4 +202,8 @@ private:
 
     VkImageView m_textureImageView;
     VkSampler m_textureSampler;
+
+    VkImage m_depthImage;
+    VkDeviceMemory m_depthImageMemory;
+    VkImageView m_depthImageView;
 };
