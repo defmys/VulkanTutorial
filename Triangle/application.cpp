@@ -13,6 +13,7 @@
 #include <map>
 #include <set>
 #include <fstream>
+#include <unordered_map>
 
 
 #ifdef NDEBUG
@@ -1789,6 +1790,7 @@ void HelloTriangleApplication::loadModel()
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
     const std::string modelPath = std::string(m_exePath) + "/models/viking_room.obj";
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
@@ -1813,8 +1815,13 @@ void HelloTriangleApplication::loadModel()
             };
             vertex.color = {1.f, 1.f, 1.f};
 
-            m_vertices.push_back(vertex);
-            m_indices.push_back(m_indices.size());
+            if (uniqueVertices.count(vertex) == 0)
+            {
+                uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
+                m_vertices.push_back(vertex);
+            }
+
+            m_indices.push_back(uniqueVertices[vertex]);
         }
     }
 }
