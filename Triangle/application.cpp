@@ -1,19 +1,10 @@
 #include "application.h"
 
-#define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3native.h>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-volatile"
-#include <glm/glm.hpp>
-#pragma clang diagnostic pop
-#include <glm/gtc/matrix_transform.hpp>
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 #include <chrono>
 #include <stdexcept>
@@ -22,7 +13,6 @@
 #include <map>
 #include <set>
 #include <fstream>
-#include <array>
 
 
 #ifdef NDEBUG
@@ -52,43 +42,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     return VK_FALSE;
 }
 
-struct Vertex
-{
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
-
-    static VkVertexInputBindingDescription getBindingDescription()
-    {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(Vertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return bindingDescription;
-    }
-
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
-    {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-        attributeDescriptions[0].binding = 0;
-        attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-        attributeDescriptions[2].binding = 0;
-        attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-        return attributeDescriptions;
-    }
-};
-
+/*
 static const std::vector<Vertex> vertices = {
     {
         {-0.5f, -0.5f, 0.f}, {1.f, 0.f, 0.f}, {0.f, 0.f}
@@ -119,6 +73,7 @@ static const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0, 
     4, 5, 6, 6, 7, 4
 };
+*/
 
 struct UniformBufferObject
 {
@@ -176,6 +131,7 @@ void HelloTriangleApplication::initVulkan()
     createFramebuffers();
     createTextureImage();
     createTextureImageView();
+    loadModel();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -1133,7 +1089,7 @@ void HelloTriangleApplication::recordCommandBuffer(VkCommandBuffer commandBuffer
     VkBuffer vertexBuffers[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
     vkCmdBindDescriptorSets(
         commandBuffer, 
@@ -1148,7 +1104,7 @@ void HelloTriangleApplication::recordCommandBuffer(VkCommandBuffer commandBuffer
 
     vkCmdDrawIndexed(
         commandBuffer, 
-        static_cast<uint32_t>(indices.size()), 
+        static_cast<uint32_t>(m_indices.size()), 
         1,  // instanceCount
         0,  // firstVertex
         0,  // vertexOffset
@@ -1245,7 +1201,7 @@ void HelloTriangleApplication::cleanupSwapChain()
 
 void HelloTriangleApplication::createVertexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
@@ -1259,7 +1215,7 @@ void HelloTriangleApplication::createVertexBuffer()
 
     void* data;
     vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), (size_t)bufferSize);
+    memcpy(data, m_vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(m_device, stagingBufferMemory);
 
     createBuffer(
@@ -1336,7 +1292,7 @@ void HelloTriangleApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer
 
 void HelloTriangleApplication::createIndexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(m_indices[0]) * m_indices.size();
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     
@@ -1350,7 +1306,7 @@ void HelloTriangleApplication::createIndexBuffer()
 
     void* data;
     vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t)bufferSize);
+    memcpy(data, m_indices.data(), (size_t)bufferSize);
 
     vkUnmapMemory(m_device, stagingBufferMemory);
 
@@ -1510,7 +1466,9 @@ void HelloTriangleApplication::updateDescriptorSets()
 void HelloTriangleApplication::createTextureImage()
 {
     int texWidth, texHeight, texChannels;
-    const std::string texturePath = std::string(m_exePath) + "/texture.jpg";
+    // const std::string texturePath = std::string(m_exePath) + "/textures/texture.jpg";
+    // stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    const std::string texturePath = std::string(m_exePath) + "/models/viking_room.png";
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     if (!pixels)
     {
@@ -1823,4 +1781,40 @@ VkFormat HelloTriangleApplication::findDepthFormat()
 bool HelloTriangleApplication::hasStencilComponent(VkFormat format)
 {
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+}
+
+void HelloTriangleApplication::loadModel()
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    const std::string modelPath = std::string(m_exePath) + "/models/viking_room.obj";
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
+    {
+        throw std::runtime_error(warn + err);
+    }
+
+    for (const auto& shape: shapes)
+    {
+        for (const auto& index: shape.mesh.indices)
+        {
+            Vertex vertex{};
+
+            vertex.pos = {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            };
+            vertex.texCoord = {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                1.f - attrib.texcoords[2 * index.texcoord_index + 1]
+            };
+            vertex.color = {1.f, 1.f, 1.f};
+
+            m_vertices.push_back(vertex);
+            m_indices.push_back(m_indices.size());
+        }
+    }
 }

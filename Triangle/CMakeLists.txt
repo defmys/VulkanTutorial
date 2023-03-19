@@ -4,7 +4,7 @@ set(target Triangle)
 
 add_executable(${target} main.cpp application.cpp)
 
-target_include_directories(${target} PRIVATE ${lib_root_dir}/stb)
+target_include_directories(${target} PRIVATE ${lib_root_dir}/stb ${lib_root_dir}/tinyobjloader)
 target_link_libraries(${target} ${glfw} ${vulkan})
 add_dependencies(${target} CompileShaders CopyResources)
 
@@ -16,5 +16,8 @@ add_custom_target(
 
 add_custom_target(
     CopyResources
-    COMMAND cp -f ${CMAKE_CURRENT_LIST_DIR}/textures/texture.jpg ${CMAKE_CURRENT_BINARY_DIR}/texture.jpg
+    COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/textures/
+    COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/models/
+    COMMAND cp -f ${CMAKE_CURRENT_LIST_DIR}/textures/* ${CMAKE_CURRENT_BINARY_DIR}/textures/
+    COMMAND cp -f ${CMAKE_CURRENT_LIST_DIR}/models/* ${CMAKE_CURRENT_BINARY_DIR}/models/
 )
